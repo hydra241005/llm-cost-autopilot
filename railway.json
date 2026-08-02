@@ -1,0 +1,13 @@
+{
+  "name": "llm-cost-autopilot",
+  "services": [
+    {
+      "name": "api",
+      "startCommand": "uvicorn autopilot.api.main:app --host 0.0.0.0 --port $PORT"
+    },
+    {
+      "name": "dashboard",
+      "startCommand": "streamlit run dashboard/app.py --server.port $PORT --server.headless true"
+    }
+  ]
+}

@@ -47,6 +47,30 @@ async def health(request: Request) -> HealthResponse:
     )
 
 
+@router.get("/health/ready", response_model=HealthResponse, summary="Readiness probe")
+async def readiness(request: Request) -> HealthResponse:
+    """Readiness: ensures the process has loaded its registry and gateway.
+
+    This intentionally avoids checking external providers (which may be down)
+    so orchestrators can distinguish process-level readiness from provider
+    degradations.
+    """
+    app = request.app
+    registry = getattr(app.state, "registry", None)
+    gateway = getattr(app.state, "gateway", None)
+    ready = registry is not None and gateway is not None
+    return HealthResponse(
+        status="ok" if ready else "degraded",
+        version=__version__,
+        environment=app.state.settings.environment,
+        providers=sorted(p.value for p in app.state.gateway.available_providers)
+        if gateway is not None
+        else [],
+        model_count=len(registry.all()) if registry is not None else 0,
+        setup_warning=None,
+    )
+
+
 class ProviderMetricsResponse(BaseModel):
     """Rolling call statistics for one provider."""
 
