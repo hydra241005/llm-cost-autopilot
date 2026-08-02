@@ -1,10 +1,12 @@
 import asyncio
+
 from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
 from pydantic import SecretStr
 
 from autopilot.api.main import create_app
 from autopilot.config import AppSettings, ProviderSettings
+
 
 async def try_config(name, prov):
     settings = AppSettings(environment="test", log_json=False)

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from decimal import Decimal
-from collections.abc import AsyncIterator
 
 import pytest
 from asgi_lifespan import LifespanManager
@@ -15,7 +15,6 @@ from autopilot.domain.entities import (
     CandidateEvaluation,
     ClassifierMetadata,
     FeatureContribution,
-    FeatureVector,
     RoutingDecision,
     RoutingExplanation,
 )

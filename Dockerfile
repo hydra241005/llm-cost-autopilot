@@ -34,6 +34,10 @@ RUN python -m pip install --no-cache-dir /wheels/* && rm -rf /wheels
 # Copy only application code
 COPY src src
 
+# Copy entrypoint and make executable
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # Expose port and set non-root user
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:8000/health || exit 1
@@ -42,4 +46,5 @@ USER autopilot
 
 ENV PATH="/home/autopilot/.local/bin:${PATH}"
 
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["uvicorn", "autopilot.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--timeout-keep-alive", "30"]

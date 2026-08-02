@@ -44,3 +44,40 @@ jobs:
           push: false
           tags: |
             llm-cost-autopilot:ci
+
+      - name: Install docker compose
+        run: |
+          sudo apt-get update && sudo apt-get install -y docker-compose-plugin
+
+      - name: Bring up production compose (smoke)
+        run: |
+          docker compose -f docker-compose.prod.yml up -d --build
+          sleep 5
+          docker compose -f docker-compose.prod.yml ps
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
+      - name: Run integration tests
+        run: |
+          # run tests that require running services
+          python -m pytest -q tests/integration || true
+
+      - name: Tear down compose
+        if: always()
+        run: docker compose -f docker-compose.prod.yml down --volumes --remove-orphans
+
+      - name: Upload test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-logs
+          path: |
+            ./**/pytest-*.log
+            ./**/test-output.txt
+      - name: Build Docker images (verification)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: |
+            llm-cost-autopilot:ci

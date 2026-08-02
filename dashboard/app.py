@@ -7,8 +7,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import requests
 import streamlit as st
-
-from components import metric_card, section_title, status_badge
+from components import metric_card, section_title
 from logic import build_api_url, summarize_provider_status
 
 st.set_page_config(page_title="LLM Cost Autopilot", page_icon="📈", layout="wide")

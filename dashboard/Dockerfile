@@ -10,6 +10,10 @@ COPY pyproject.toml pyproject.toml
 COPY src src
 COPY dashboard dashboard
 
+# Copy entrypoint and make executable
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 RUN python -m pip install --upgrade pip setuptools wheel && python -m pip wheel . -w /wheels
 
 FROM python:3.11-slim AS runtime
@@ -29,5 +33,5 @@ EXPOSE 8501
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:8501/ || exit 1
 
 USER autopilot
-
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["streamlit", "run", "dashboard/app.py", "--server.port", "8501", "--server.headless", "true"]

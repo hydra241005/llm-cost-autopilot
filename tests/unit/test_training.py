@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from autopilot.domain.entities import CompletionInput, Message, TrainingExample
-from autopilot.domain.enums import Role, TaskType, Tier
+from autopilot.domain.enums import Role, Tier
 from autopilot.infrastructure.ml.classifier import SklearnClassifier
 from autopilot.infrastructure.ml.features import PromptFeatureExtractor
 from autopilot.infrastructure.ml.model_store import FilesystemClassifierStore

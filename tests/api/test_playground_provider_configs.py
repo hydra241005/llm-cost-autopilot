@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 from asgi_lifespan import LifespanManager
 from httpx import ASGITransport, AsyncClient
@@ -8,7 +10,6 @@ from pydantic import SecretStr
 from autopilot.api.main import create_app
 from autopilot.config import AppSettings, ProviderSettings
 from autopilot.domain.errors import ConfigurationError
-from types import SimpleNamespace
 
 
 @pytest.mark.parametrize(
