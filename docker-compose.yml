@@ -1,0 +1,59 @@
+version: '3.8'
+services:
+  api:
+    build:
+      context: .
+      target: api
+    image: llm-cost-autopilot:api
+    ports:
+      - '8000:8000'
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - OLLAMA_URL=${OLLAMA_URL}
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD-SHELL","curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  dashboard:
+    build:
+      context: ./dashboard
+    image: llm-cost-autopilot:dashboard
+    ports:
+      - '8501:8501'
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - api
+
+  postgres:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=autopilot
+      - POSTGRES_PASSWORD=autopilot
+      - POSTGRES_DB=autopilot
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U autopilot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ["CMD-SHELL","redis-cli ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
