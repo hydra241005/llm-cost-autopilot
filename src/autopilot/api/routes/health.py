@@ -14,6 +14,8 @@ from pydantic import BaseModel, Field
 from autopilot import __version__
 from autopilot.infrastructure.observability.metrics import ProviderMetrics
 from autopilot.infrastructure.resilience.health import ProviderHealth
+from autopilot.infrastructure.providers.ollama_setup import check_ollama
+from autopilot.domain.enums import Provider
 
 router = APIRouter(tags=["ops"])
 
@@ -37,6 +39,21 @@ async def health(request: Request) -> HealthResponse:
     """Report process health and what the router currently has available."""
     app = request.app
     ollama_status = getattr(app.state, "ollama_status", None)
+    # If Ollama was previously reported missing models, try a one-time refresh
+    # so the health endpoint reflects models pulled after startup.
+    if ollama_status is not None and ollama_status.missing:
+        try:
+            registry = getattr(app.state, "registry", None)
+            gateway = getattr(app.state, "gateway", None)
+            if gateway is not None and registry is not None:
+                adapter = gateway.adapter_for(Provider.OLLAMA)
+                # Re-run the lightweight preflight (no auto-pull) to refresh state.
+                new_status = await check_ollama(adapter, registry, auto_pull=False)
+                app.state.ollama_status = new_status
+                ollama_status = new_status
+        except Exception:
+            # Don't let a transient refresh error break the liveness check.
+            pass
     return HealthResponse(
         status="ok",
         version=__version__,
