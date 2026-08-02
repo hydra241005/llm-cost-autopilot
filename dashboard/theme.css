@@ -1,0 +1,94 @@
+:root {
+  color-scheme: dark;
+  --bg: #0B0E14;
+  --surface: rgba(22, 27, 38, 0.66);
+  --ink: #E7EBF0;
+  --ink-dim: #8A93A6;
+  --save: #4ADE9C;
+  --spend: #F2B441;
+  --fail: #F26D6D;
+  --accent: #6C8CFF;
+}
+
+html, body, [data-testid="stAppViewContainer"] {
+  background: radial-gradient(circle at top left, rgba(108, 140, 255, 0.18), transparent 30%), var(--bg);
+  color: var(--ink);
+}
+
+[data-testid="stSidebar"] {
+  background: rgba(12, 16, 24, 0.9);
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+[data-testid="stSidebarUserContent"] {
+  padding-top: 0.75rem;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(14px);
+  border-radius: 20px;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 20px 60px rgba(3, 8, 20, 0.35);
+}
+
+.metric-card {
+  min-height: 128px;
+}
+
+.metric-title {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 0.4rem;
+}
+
+.metric-value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  font-family: "JetBrains Mono", monospace;
+  margin-bottom: 0.2rem;
+}
+
+.metric-hint {
+  font-size: 0.92rem;
+  color: var(--ink-dim);
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 0.35rem;
+}
+
+.kicker {
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.35rem;
+}
+
+[data-testid="stMetric"] {
+  background: rgba(255,255,255,0.02);
+  border-radius: 14px;
+  padding: 0.5rem 0.7rem;
+}

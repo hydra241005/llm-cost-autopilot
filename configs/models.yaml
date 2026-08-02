@@ -1,0 +1,102 @@
+# Model registry — seed configuration.
+#
+# Imported into the `models` table on first boot; the database is authoritative
+# thereafter and price changes go through the admin API (which writes an audit row).
+# Prices are USD per million tokens, verified against vendor pricing 2026-07-31.
+#
+# Registry ids are `provider:short-name`. Vendor model ids are the exact strings
+# sent on the wire — never append date suffixes to modern aliases.
+
+version: 1
+
+models:
+  # ── Tier 1: simple requests — extraction, formatting, short answers ──
+  - id: ollama:llama3.1-8b
+    provider: ollama
+    vendor_model_id: llama3.1:8b
+    tier: 1
+    input_cost_per_mtok: "0"
+    output_cost_per_mtok: "0"
+    max_context_tokens: 131072
+    max_output_tokens: 4096
+    expected_latency_ms: 1800
+    active: true
+    notes: Free local floor. Lets the demo run end to end with zero cloud keys.
+
+  - id: anthropic:claude-haiku-4-5
+    provider: anthropic
+    vendor_model_id: claude-haiku-4-5
+    tier: 1
+    input_cost_per_mtok: "1.00"
+    output_cost_per_mtok: "5.00"
+    max_context_tokens: 200000
+    max_output_tokens: 16000
+    expected_latency_ms: 900
+    active: true
+    notes: Fast cheap cloud model; Tier 1 primary when Ollama is unavailable.
+
+  # ── Tier 2: moderate requests — multi-step summarization, light reasoning ──
+  - id: openai:gpt-4o-mini
+    provider: openai
+    vendor_model_id: gpt-4o-mini
+    tier: 2
+    input_cost_per_mtok: "0.15"
+    output_cost_per_mtok: "0.60"
+    max_context_tokens: 128000
+    max_output_tokens: 16384
+    expected_latency_ms: 1100
+    active: true
+    notes: Cheap mid workhorse and Tier 2 primary.
+
+  - id: anthropic:claude-sonnet-5
+    provider: anthropic
+    vendor_model_id: claude-sonnet-5
+    tier: 2
+    input_cost_per_mtok: "3.00"
+    output_cost_per_mtok: "15.00"
+    max_context_tokens: 1000000
+    max_output_tokens: 16000
+    expected_latency_ms: 2600
+    active: true
+    supports_temperature: false
+    notes: >
+      Rejects non-default sampling parameters, so the adapter omits temperature.
+      Introductory pricing of 2.00/10.00 applies through 2026-08-31.
+
+  # ── Tier 3: complex requests — deep reasoning, architecture, hard code ──
+  - id: openai:gpt-4o
+    provider: openai
+    vendor_model_id: gpt-4o
+    tier: 3
+    input_cost_per_mtok: "2.50"
+    output_cost_per_mtok: "10.00"
+    max_context_tokens: 128000
+    max_output_tokens: 16384
+    expected_latency_ms: 2400
+    active: true
+    notes: Reference/premium model, and the counterfactual savings baseline.
+
+  - id: anthropic:claude-opus-5
+    provider: anthropic
+    vendor_model_id: claude-opus-5
+    tier: 3
+    input_cost_per_mtok: "5.00"
+    output_cost_per_mtok: "25.00"
+    max_context_tokens: 1000000
+    max_output_tokens: 16000
+    expected_latency_ms: 5200
+    active: true
+    supports_temperature: false
+    notes: Tier 3 primary and the default judge reference. Rejects sampling parameters.
+
+  - id: anthropic:claude-opus-4-6
+    provider: anthropic
+    vendor_model_id: claude-opus-4-6
+    tier: 3
+    input_cost_per_mtok: "5.00"
+    output_cost_per_mtok: "25.00"
+    max_context_tokens: 1000000
+    max_output_tokens: 16000
+    expected_latency_ms: 5000
+    active: true
+    notes: Cross-generation Tier 3 fallback.

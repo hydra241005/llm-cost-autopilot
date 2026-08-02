@@ -1,0 +1,33 @@
+# Routing configuration — seed version.
+#
+# Imported into `routing_configs` on first boot; the database is authoritative
+# thereafter and the PUT endpoint creates new versions. Each tier lists a primary
+# model and an ordered fallback chain. Chains deliberately cross providers so a
+# full outage at one vendor degrades transparently instead of failing.
+
+version: 1
+name: default
+
+# Premium model the savings figure is measured against.
+baseline_model_id: openai:gpt-4o
+
+# Below this classifier confidence the effective tier is raised by one:
+# mis-routing up wastes cents, mis-routing down damages quality.
+confidence_threshold: 0.6
+
+tiers:
+  1:
+    primary: ollama:llama3.1-8b
+    fallbacks:
+      - anthropic:claude-haiku-4-5
+      - openai:gpt-4o-mini
+  2:
+    primary: openai:gpt-4o-mini
+    fallbacks:
+      - anthropic:claude-sonnet-5
+      - openai:gpt-4o
+  3:
+    primary: anthropic:claude-opus-5
+    fallbacks:
+      - openai:gpt-4o
+      - anthropic:claude-opus-4-6

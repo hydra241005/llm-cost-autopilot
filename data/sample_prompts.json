@@ -1,0 +1,62 @@
+[
+  {
+    "id": "p01",
+    "expected_tier": 1,
+    "task_type": "extraction",
+    "prompt": "Extract the email address from this line: Contact Dana at dana.reyes@example.com for scheduling."
+  },
+  {
+    "id": "p02",
+    "expected_tier": 1,
+    "task_type": "classification",
+    "prompt": "Classify the sentiment of this review as positive, negative, or neutral. Reply with one word only.\n\n\"Shipping was fast but the case arrived scratched.\""
+  },
+  {
+    "id": "p03",
+    "expected_tier": 1,
+    "task_type": "general",
+    "prompt": "What is the capital of Portugal? Answer in one word."
+  },
+  {
+    "id": "p04",
+    "expected_tier": 1,
+    "task_type": "extraction",
+    "prompt": "Return the three product SKUs in this text as a comma-separated list: We restocked AB-1120, then QX-9931, and finally ZZ-0042."
+  },
+  {
+    "id": "p05",
+    "expected_tier": 2,
+    "task_type": "summarization",
+    "prompt": "Summarize the following in exactly two sentences.\n\nA distributed cache reduces read pressure on the primary database, but introduces a consistency window during which a client may read a stale value. Teams usually accept that window for read-heavy workloads and shorten it with write-through invalidation. The tradeoff becomes unacceptable when the cached value drives a financial decision."
+  },
+  {
+    "id": "p06",
+    "expected_tier": 2,
+    "task_type": "general",
+    "prompt": "Rewrite this support reply so it is warmer but stays under 40 words: 'Your refund was denied because the return window closed on the 14th.'"
+  },
+  {
+    "id": "p07",
+    "expected_tier": 2,
+    "task_type": "code",
+    "prompt": "Write a Python function that returns the nth Fibonacci number iteratively. Include a docstring and type hints. No explanation."
+  },
+  {
+    "id": "p08",
+    "expected_tier": 3,
+    "task_type": "reasoning",
+    "prompt": "Three servers each report a different clock time and one is known to be lying about its NTP sync status. Server A says 10:04 and claims synced. Server B says 10:07 and claims synced. Server C says 10:04 and claims unsynced. Given that unsynced clocks drift forward and never backward, which server is most likely lying, and why? Reason step by step."
+  },
+  {
+    "id": "p09",
+    "expected_tier": 3,
+    "task_type": "code",
+    "prompt": "Review this function for correctness and concurrency safety, and explain any bug you find:\n\ndef get_or_create(cache, key, factory):\n    if key not in cache:\n        cache[key] = factory()\n    return cache[key]"
+  },
+  {
+    "id": "p10",
+    "expected_tier": 3,
+    "task_type": "reasoning",
+    "prompt": "A team wants to cut LLM spend by 60% without measurable quality loss. They have no evaluation harness and no per-request logging. Lay out the first three things they should build, in order, and justify the ordering in terms of what each one unblocks."
+  }
+]

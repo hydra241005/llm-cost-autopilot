@@ -1,0 +1,131 @@
+[project]
+name = "llm-cost-autopilot"
+version = "0.1.0"
+description = "Intelligent LLM routing layer: classify complexity, route to the cheapest capable model, verify quality asynchronously, retrain the router from its own mistakes."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "LLM Cost Autopilot" }]
+
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "httpx>=0.27",
+    "structlog>=24.4",
+    "pyyaml>=6.0",
+    "anthropic>=0.40",
+    "openai>=1.55",
+    "tenacity>=9.0",
+]
+
+[project.optional-dependencies]
+ml = [
+    "scikit-learn>=1.5",
+    "numpy>=2.0",
+    "joblib>=1.4",
+    "tiktoken>=0.8",
+]
+db = [
+    "sqlalchemy[asyncio]>=2.0.36",
+    "aiosqlite>=0.20",
+    "alembic>=1.14",
+    "asyncpg>=0.30",
+]
+dashboard = [
+    "streamlit>=1.40",
+    "plotly>=5.24",
+    "pandas>=2.2",
+]
+redis = [
+    "redis>=5.2",
+    "arq>=0.26",
+]
+observability = [
+    "prometheus-client>=0.21",
+]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "respx>=0.21",
+    "asgi-lifespan>=2.1",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "types-pyyaml>=6.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/autopilot"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "C4",   # comprehensions
+    "SIM",  # simplify
+    "ASYNC",# async correctness
+    "RUF",  # ruff-specific
+    "D",    # pydocstyle: docstrings on every public class/function
+]
+ignore = [
+    "D107",  # __init__ docstring lives on the class
+    "D203",  # incompatible with D211
+    "D213",  # incompatible with D212
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Error names are fixed by the approved architecture (docs 03, 06).
+"src/autopilot/domain/errors.py" = ["N818"]
+# Depends(...) / Query(...) in defaults is the FastAPI idiom.
+"src/autopilot/api/routes/*" = ["B008"]
+"tests/**" = ["D"]
+"scripts/**" = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+mypy_path = "src"
+packages = ["autopilot"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "scripts.*"]
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-q --strict-markers"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "live: hits real provider APIs; requires keys and is skipped by default",
+    "integration: requires a database or other external service",
+]
+
+[tool.coverage.run]
+source = ["src/autopilot/domain", "src/autopilot/application"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
