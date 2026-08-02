@@ -9,12 +9,23 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:24-dind
+        options: --privileged
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -26,3 +37,10 @@ jobs:
         run: mypy -p autopilot || true
       - name: Run tests
         run: python -m pytest -q
+      - name: Build Docker images (verification)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: |
+            llm-cost-autopilot:ci
