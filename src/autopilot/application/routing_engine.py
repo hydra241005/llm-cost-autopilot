@@ -42,7 +42,11 @@ from autopilot.domain.policies.routing import (
 )
 from autopilot.infrastructure.clock import SystemClock
 from autopilot.infrastructure.ml.classifier import HeuristicClassifier
-from autopilot.infrastructure.ml.features import PromptFeatureExtractor, estimate_tokens, prompt_text
+from autopilot.infrastructure.ml.features import (
+    PromptFeatureExtractor,
+    estimate_tokens,
+    prompt_text,
+)
 from autopilot.infrastructure.observability.logging import get_logger
 from autopilot.infrastructure.observability.operational_store import OperationalStore
 

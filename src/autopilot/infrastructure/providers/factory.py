@@ -7,19 +7,18 @@ with only Ollama, so a reviewer can clone the repo and see it work with no keys.
 
 from __future__ import annotations
 
-from autopilot.config import AppSettings
-from autopilot.domain.enums import Provider
-from autopilot.domain.errors import ConfigurationError
-from autopilot.domain.interfaces import LLMProvider
 import os
 
+from autopilot.config import AppSettings
+from autopilot.domain.entities import ProviderResponse, Usage
+from autopilot.domain.enums import FinishReason, Provider
+from autopilot.domain.enums import Provider as ProviderEnum
+from autopilot.domain.errors import ConfigurationError
+from autopilot.domain.interfaces import LLMProvider
 from autopilot.infrastructure.observability.logging import get_logger
 from autopilot.infrastructure.providers.anthropic_adapter import AnthropicAdapter
 from autopilot.infrastructure.providers.ollama_adapter import OllamaAdapter
 from autopilot.infrastructure.providers.openai_adapter import OpenAIAdapter
-from autopilot.domain.entities import ProviderResponse, Usage
-from autopilot.domain.enums import FinishReason
-from autopilot.domain.enums import Provider as ProviderEnum
 
 _log = get_logger(__name__)
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from autopilot.domain.entities import ClassifierMetadata, TrainingJob
+from autopilot.domain.entities import ClassifierMetadata
 from autopilot.domain.enums import ClassifierStatus, TrainingJobStatus
 from autopilot.domain.errors import ClassifierError
 from autopilot.infrastructure.ml.training.lifecycle import ClassifierLifecycleService

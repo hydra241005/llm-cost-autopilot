@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from autopilot.application.provider_gateway import ProviderGateway
 from autopilot.application.routing_engine import RoutingEngine
 from autopilot.domain.entities import CompletionInput, Message, RoutingDecision
-from autopilot.domain.enums import Provider, Role, TaskType, BreakerState
+from autopilot.domain.enums import BreakerState, Role, TaskType
 from autopilot.domain.errors import AutopilotError, CircuitOpenError, ClassifierError, ProviderError
 from autopilot.infrastructure.observability.operational_store import OperationalStore
 
@@ -322,7 +322,6 @@ def _routing_engine(
     settings: Any,
     operational_store: OperationalStore,
 ) -> RoutingEngine:
-    from autopilot.domain.policies.fallback import RoutingConfig
     from autopilot.infrastructure.ml.classifier import HeuristicClassifier
     from autopilot.infrastructure.ml.features import PromptFeatureExtractor
     from autopilot.infrastructure.routing_config import load_routing_config

@@ -15,8 +15,8 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 
-from autopilot.domain.entities import ClassifierMetadata, FeatureVector, TrainingExample
-from autopilot.domain.enums import ClassifierStatus, TaskType, Tier
+from autopilot.domain.entities import ClassifierMetadata, TrainingExample
+from autopilot.domain.enums import ClassifierStatus, Tier
 from autopilot.domain.errors import ClassifierError
 from autopilot.domain.interfaces import ClassifierStore, FeatureExtractor
 from autopilot.infrastructure.ml.classifier import SklearnClassifier

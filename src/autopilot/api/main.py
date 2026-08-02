@@ -20,8 +20,8 @@ from autopilot.config import AppSettings, get_settings
 from autopilot.domain.enums import Provider
 from autopilot.infrastructure.ml.model_store import FilesystemClassifierStore
 from autopilot.infrastructure.observability.logging import configure_logging, get_logger
-from autopilot.infrastructure.observability.operational_store import OperationalStore
 from autopilot.infrastructure.observability.metrics import ProviderMetricsCollector
+from autopilot.infrastructure.observability.operational_store import OperationalStore
 from autopilot.infrastructure.providers.factory import build_adapters
 from autopilot.infrastructure.providers.ollama_adapter import OllamaAdapter
 from autopilot.infrastructure.providers.ollama_setup import OllamaStatus, check_ollama

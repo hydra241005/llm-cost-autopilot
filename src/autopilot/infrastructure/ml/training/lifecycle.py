@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
 
 from autopilot.domain.entities import ClassifierMetadata, TrainingJob
 from autopilot.domain.enums import ClassifierStatus, TrainingJobStatus
