@@ -8,7 +8,7 @@ metrics, which is what an operator actually needs when routing degrades.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Response, status
 from pydantic import BaseModel, Field
 
 from autopilot import __version__
@@ -48,17 +48,75 @@ async def health(request: Request) -> HealthResponse:
 
 
 @router.get("/health/ready", response_model=HealthResponse, summary="Readiness probe")
-async def readiness(request: Request) -> HealthResponse:
-    """Readiness: ensures the process has loaded its registry and gateway.
+async def readiness(request: Request, response: Response) -> HealthResponse:
+    """Readiness: ensures the process and key dependencies can serve traffic.
 
-    This intentionally avoids checking external providers (which may be down)
-    so orchestrators can distinguish process-level readiness from provider
-    degradations.
+    This endpoint performs lightweight checks to determine whether the
+    application is ready to receive production traffic. It verifies:
+    - app composition (registry/gateway) has completed
+    - database connectivity (when a non-sqlite URL is configured)
+    - redis connectivity (when `REDIS_URL` is configured)
+    - provider manager is present on the gateway
+
+    Returns HTTP 200 when ready, HTTP 503 when any critical dependency is
+    unavailable. The JSON payload retains the same shape as `/health`.
     """
     app = request.app
+    settings = app.state.settings
+
     registry = getattr(app.state, "registry", None)
     gateway = getattr(app.state, "gateway", None)
-    ready = registry is not None and gateway is not None
+
+    ready = True
+    setup_warning = None
+
+    # Basic composition checks
+    if registry is None or gateway is None:
+        ready = False
+
+    # Provider manager availability
+    try:
+        has_health = gateway is not None and getattr(gateway, "health", None) is not None
+        if not has_health:
+            ready = False
+    except Exception:
+        ready = False
+
+    # Database connectivity: SQLite is considered local and available by default.
+    db_url = getattr(settings, "database_url", "")
+    if db_url and not db_url.startswith("sqlite"):
+        try:
+            # Import SQLAlchemy only when needed; optional dependency may be absent.
+            from sqlalchemy.ext.asyncio import create_async_engine
+            from sqlalchemy import text
+
+            engine = create_async_engine(db_url, pool_pre_ping=True)
+            try:
+                async with engine.connect() as conn:
+                    await conn.execute(text("SELECT 1"))
+            finally:
+                await engine.dispose()
+        except Exception as e:  # pragma: no cover - runtime external checks
+            ready = False
+            setup_warning = str(e)
+
+    # Redis connectivity (optional)
+    redis_url = getattr(settings, "redis_url", None)
+    if redis_url:
+        try:
+            import redis.asyncio as redis_async
+
+            client = redis_async.from_url(redis_url)
+            try:
+                await client.ping()
+            finally:
+                await client.close()
+        except Exception as e:  # pragma: no cover - runtime external checks
+            ready = False
+            setup_warning = (setup_warning or "") + f"; redis: {e}"
+
+    response.status_code = status.HTTP_200_OK if ready else status.HTTP_503_SERVICE_UNAVAILABLE
+
     return HealthResponse(
         status="ok" if ready else "degraded",
         version=__version__,
@@ -67,7 +125,7 @@ async def readiness(request: Request) -> HealthResponse:
         if gateway is not None
         else [],
         model_count=len(registry.all()) if registry is not None else 0,
-        setup_warning=None,
+        setup_warning=setup_warning,
     )
 
 
