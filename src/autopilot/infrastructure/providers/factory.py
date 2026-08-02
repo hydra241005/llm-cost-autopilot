@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 
 from autopilot.config import AppSettings
-from autopilot.domain.entities import ProviderResponse, Usage
+from autopilot.domain.entities import ProviderResponse, Usage, CompletionInput, ModelConfig
 from autopilot.domain.enums import FinishReason, Provider
 from autopilot.domain.enums import Provider as ProviderEnum
 from autopilot.domain.errors import ConfigurationError
@@ -44,11 +44,13 @@ def build_adapters(settings: AppSettings) -> dict[Provider, LLMProvider]:
     if getattr(settings, "environment", None) == "test" or os.environ.get(
         "PYTEST_CURRENT_TEST"
     ):
-        class _FakeAdapter:
+        class _FakeAdapter(LLMProvider):
             def __init__(self, provider: Provider):
                 self.name = provider
 
-            async def complete(self, req, cfg, timeout_s: float):
+            async def complete(
+                self, req: CompletionInput, cfg: ModelConfig, timeout_s: float
+            ) -> ProviderResponse:
                 # Minimal deterministic response matching domain types.
                 return ProviderResponse(
                     model_id=cfg.id,

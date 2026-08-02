@@ -41,8 +41,12 @@ class TrainingJobResponse(BaseModel):
 @router.get("", response_model=list[ClassifierMetadata], summary="List classifier versions")
 async def list_classifiers(request: Request) -> list[ClassifierMetadata]:
     """List persisted classifier versions and their metadata."""
-    store = request.app.state.classifier_store
-    return store.list_versions()
+    # Annotate to help mypy understand the app state API
+    from autopilot.domain.interfaces import ClassifierStore
+
+    store: ClassifierStore = request.app.state.classifier_store
+    # Ensure a concrete list is returned to satisfy response_model typing
+    return list(store.list_versions())
 
 
 @router.post("/{version}/transition", response_model=ClassifierMetadata)
@@ -93,6 +97,8 @@ async def start_training_job(payload: PromoteRequest, request: Request) -> Train
 
 
 def _service(request: Request) -> ClassifierLifecycleService:
+    from typing import cast
+
     if not hasattr(request.app.state, "classifier_lifecycle"):
         request.app.state.classifier_lifecycle = ClassifierLifecycleService(request.app.state.classifier_store)
-    return request.app.state.classifier_lifecycle
+    return cast(ClassifierLifecycleService, request.app.state.classifier_lifecycle)

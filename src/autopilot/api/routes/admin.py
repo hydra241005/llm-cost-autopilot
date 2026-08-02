@@ -16,6 +16,9 @@ from autopilot.domain.entities import CompletionInput, Message, RoutingDecision
 from autopilot.domain.enums import BreakerState, Role, TaskType
 from autopilot.domain.errors import AutopilotError, CircuitOpenError, ClassifierError, ProviderError
 from autopilot.infrastructure.observability.operational_store import OperationalStore
+from typing import cast
+from autopilot.domain.enums import Provider
+from autopilot.infrastructure.resilience.health import ProviderHealthManager
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -312,7 +315,8 @@ async def provider_operations(request: Request) -> dict[str, Any]:
 
 
 def _store(request: Request) -> OperationalStore:
-    return request.app.state.operational_store
+    # Cast the dynamic app.state attribute to the operational store type
+    return cast(OperationalStore, request.app.state.operational_store)
 
 
 def _routing_engine(
@@ -345,18 +349,18 @@ class _HealthViewAdapter:
     delegates to the shared `ProviderHealthManager` for circuit state.
     """
 
-    def __init__(self, gateway: object) -> None:
+    def __init__(self, gateway: ProviderGateway) -> None:
         self._gateway = gateway
-        self._manager = gateway.health
+        self._manager: ProviderHealthManager = gateway.health
 
-    def is_available(self, provider):
+    def is_available(self, provider: Provider) -> bool:
         # A provider with no configured adapter must be treated as unavailable
         # so the router does not select models the gateway cannot call.
         if provider not in getattr(self._gateway, "available_providers", ()):  # pragma: no cover - defensive
             return False
         return self._manager.is_available(provider)
 
-    def state(self, provider):
+    def state(self, provider: Provider) -> BreakerState:
         if provider not in getattr(self._gateway, "available_providers", ()):  # pragma: no cover - defensive
             return BreakerState.OPEN
         return self._manager.health(provider).state
@@ -378,7 +382,12 @@ def _decision_payload(decision: RoutingDecision, cost_usd: float, latency_ms: in
         "confidence": decision.confidence,
         "classifier_version": decision.classifier_version,
         "candidate_models": list(decision.candidate_model_ids),
-        "estimated_cost": {model_id: float(explanation.estimated_cost_usd) for model_id in decision.candidate_model_ids},
+                "estimated_cost": {
+                    model_id: float(
+                        (explanation.estimated_cost_usd if explanation else Decimal("0"))
+                    )
+                    for model_id in decision.candidate_model_ids
+                },
         "explanation": explanation.summary if explanation else "",
         "latency_ms": latency_ms,
         "cost_usd": cost_usd,

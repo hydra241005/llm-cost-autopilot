@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-import joblib
+import joblib  # type: ignore[import-untyped]
 
 from autopilot.domain.entities import ClassifierMetadata
 from autopilot.domain.enums import ClassifierStatus
